@@ -56,6 +56,7 @@ function initEventListeners() {
     
     document.getElementById('btn-zoom-in').addEventListener('click', () => zoomCanvas(0.1));
     document.getElementById('btn-zoom-out').addEventListener('click', () => zoomCanvas(-0.1));
+    document.getElementById('btn-auto-layout').addEventListener('click', autoLayoutGraph);
     document.getElementById('btn-zoom-reset').addEventListener('click', resetZoomAndPan);
     document.getElementById('btn-clear-canvas').addEventListener('click', clearCanvas);
     
@@ -1282,4 +1283,146 @@ function autoResizeTextarea(textarea) {
     textarea.style.height = 'auto';
     const borderHeight = textarea.offsetHeight - textarea.clientHeight;
     textarea.style.height = `${textarea.scrollHeight + borderHeight}px`;
+}
+
+function autoLayoutGraph() {
+    if (state.nodes.length === 0) return;
+    
+    // 1. Identify start node
+    const startNode = state.nodes.find(n => n.id === state.startNodeId) || state.nodes[0];
+    
+    // 2. Build adjacency list of children
+    const adj = {};
+    state.nodes.forEach(n => {
+        adj[n.id] = [];
+        if (n.type === 'message' || n.type === 'input') {
+            if (n.next) adj[n.id].push(n.next);
+        } else if (n.type === 'choice' && n.choices) {
+            n.choices.forEach(c => {
+                if (c.next) adj[n.id].push(c.next);
+            });
+        }
+    });
+    
+    // 3. Determine layers (BFS)
+    const layers = {}; // nodeId -> layer index
+    const queue = [{ id: startNode.id, layer: 0 }];
+    const visited = new Set();
+    
+    while (queue.length > 0) {
+        const current = queue.shift();
+        const nodeId = current.id;
+        const layer = current.layer;
+        
+        if (layers[nodeId] === undefined || layer > layers[nodeId]) {
+            layers[nodeId] = layer;
+        }
+        
+        const visitKey = `${nodeId}-${layer}`;
+        if (visited.has(visitKey)) continue;
+        visited.add(visitKey);
+        
+        if (layer > 50) continue; // safety depth limit
+        
+        const children = adj[nodeId] || [];
+        children.forEach(childId => {
+            queue.push({ id: childId, layer: layer + 1 });
+        });
+    }
+    
+    // Assign default layer to disconnected nodes
+    state.nodes.forEach(n => {
+        if (layers[n.id] === undefined) {
+            layers[n.id] = 0;
+        }
+    });
+    
+    // 4. Group nodes by layer
+    const columns = {};
+    state.nodes.forEach(node => {
+        const layer = layers[node.id];
+        if (!columns[layer]) columns[layer] = [];
+        columns[layer].push(node);
+    });
+    
+    // Sort nodes inside columns by their current y position to maintain relative vertical order
+    Object.keys(columns).forEach(layer => {
+        columns[layer].sort((a, b) => a.y - b.y);
+    });
+    
+    // 5. Calculate coordinates
+    const columnWidth = 380;
+    const rowHeight = 250;
+    const startX = 80;
+    const startY = 150;
+    
+    let maxColHeight = 0;
+    Object.keys(columns).forEach(layer => {
+        maxColHeight = Math.max(maxColHeight, columns[layer].length);
+    });
+    
+    const targets = {};
+    
+    Object.keys(columns).forEach(layerStr => {
+        const layer = parseInt(layerStr);
+        const colNodes = columns[layer];
+        const colHeight = colNodes.length;
+        
+        // Vertically center columns relative to the layout grid
+        const colStartY = startY + (maxColHeight - colHeight) * rowHeight / 2;
+        
+        colNodes.forEach((node, index) => {
+            targets[node.id] = {
+                x: startX + layer * columnWidth,
+                y: colStartY + index * rowHeight
+            };
+        });
+    });
+    
+    // 6. Animate transition
+    animateNodesToTargets(targets);
+}
+
+function animateNodesToTargets(targets) {
+    const duration = 500; // ms
+    const startTime = performance.now();
+    
+    const startPositions = {};
+    state.nodes.forEach(node => {
+        startPositions[node.id] = { x: node.x, y: node.y };
+    });
+    
+    function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // cubic easeOut easing
+        const ease = 1 - Math.pow(1 - progress, 3);
+        
+        state.nodes.forEach(node => {
+            const start = startPositions[node.id];
+            const target = targets[node.id];
+            if (start && target) {
+                node.x = start.x + (target.x - start.x) * ease;
+                node.y = start.y + (target.y - start.y) * ease;
+                
+                const nodeEl = document.getElementById(node.id);
+                if (nodeEl) {
+                    nodeEl.style.left = `${node.x}px`;
+                    nodeEl.style.top = `${node.y}px`;
+                }
+            }
+        });
+        
+        drawConnections();
+        
+        if (progress < 1) {
+            requestAnimationFrame(step);
+        } else {
+            // Re-align and center view on the start node after layout finishes
+            resetZoomAndPan();
+        }
+    }
+    
+    requestAnimationFrame(step);
 }
