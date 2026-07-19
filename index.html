@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VizScript Studio — Визуальный конструктор сценариев диалога</title>
+    <!-- Google Fonts: Inter & Fira Code -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-logo">
+                <div class="logo-icon">
+                    <i data-lucide="git-fork" class="glow-icon"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>VizScript <span class="accent-text">Studio</span></h1>
+                    <p class="tagline">Редактор сценариев и симулятор диалогов</p>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="btn-load-demo" class="btn btn-secondary">
+                    <i data-lucide="sparkles"></i>
+                    <span>Демо-сценарий</span>
+                </button>
+                <div class="divider"></div>
+                <button id="btn-import" class="btn btn-secondary">
+                    <i data-lucide="upload"></i>
+                    <span>Импорт</span>
+                </button>
+                <button id="btn-export" class="btn btn-primary">
+                    <i data-lucide="download"></i>
+                    <span>Экспорт JSON</span>
+                </button>
+                <input type="file" id="import-file-input" style="display: none;" accept=".json">
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="app-workspace">
+            
+            <!-- Left Side: Visual Node Editor -->
+            <section class="editor-section">
+                <!-- Toolbar -->
+                <div class="canvas-toolbar">
+                    <div class="toolbar-group">
+                        <button id="add-message-node" class="btn-tool" title="Добавить сообщение бота">
+                            <i data-lucide="message-square-text" class="color-message"></i>
+                            <span>Сообщение</span>
+                        </button>
+                        <button id="add-choice-node" class="btn-tool" title="Добавить развилку (выбор)">
+                            <i data-lucide="git-branch" class="color-choice"></i>
+                            <span>Выбор</span>
+                        </button>
+                        <button id="add-input-node" class="btn-tool" title="Добавить ввод от пользователя">
+                            <i data-lucide="keyboard" class="color-input"></i>
+                            <span>Ввод данных</span>
+                        </button>
+                        <button id="add-end-node" class="btn-tool" title="Конец разговора">
+                            <i data-lucide="octagon" class="color-end"></i>
+                            <span>Конец</span>
+                        </button>
+                    </div>
+                    <div class="toolbar-spacer"></div>
+                    <div class="toolbar-group">
+                        <button id="btn-zoom-in" class="btn-tool-icon" title="Приблизить">
+                            <i data-lucide="zoom-in"></i>
+                        </button>
+                        <button id="btn-zoom-out" class="btn-tool-icon" title="Отдалить">
+                            <i data-lucide="zoom-out"></i>
+                        </button>
+                        <button id="btn-zoom-reset" class="btn-tool-icon" title="Сбросить масштаб">
+                            <i data-lucide="maximize-2"></i>
+                        </button>
+                        <button id="btn-clear-canvas" class="btn-tool-icon danger" title="Очистить всё">
+                            <i data-lucide="trash-2"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Canvas Container -->
+                <div class="canvas-container" id="canvas-container">
+                    <div class="canvas-grid-bg"></div>
+                    
+                    <div class="editor-canvas" id="editor-canvas">
+                        <!-- SVG connections overlay -->
+                        <svg class="connections-svg" id="connections-svg">
+                            <defs>
+                                <linearGradient id="grad-active" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#8b5cf6" />
+                                    <stop offset="100%" stop-color="#06b6d4" />
+                                </linearGradient>
+                                <linearGradient id="grad-inactive" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#475569" />
+                                    <stop offset="100%" stop-color="#64748b" />
+                                </linearGradient>
+                                <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="rgba(100, 116, 139, 0.8)"/>
+                                </marker>
+                                <marker id="arrow-active" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                    <path d="M 0 1 L 10 5 L 0 9 z" fill="#06b6d4"/>
+                                </marker>
+                            </defs>
+                            <g id="connections-group"></g>
+                            <path id="temp-connection-line" class="temp-connection" d="" style="display:none;"></path>
+                        </svg>
+                        
+                        <!-- Nodes will be spawned here dynamically -->
+                        <div class="nodes-container" id="nodes-container"></div>
+                    </div>
+
+                    <!-- Keyboard hints / Instructions overlay -->
+                    <div class="canvas-overlay-hint">
+                        <p><kbd>L-Click + Drag</kbd> Перемещение по холсту | <kbd>Scroll</kbd> Масштаб | <kbd>Клик на линию</kbd> Удалить связь</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Side: Live Chat Simulator -->
+            <section class="simulator-section">
+                <div class="simulator-header">
+                    <div class="sim-title">
+                        <i data-lucide="play-circle" class="color-accent-glow"></i>
+                        <span>Симулятор сценария</span>
+                    </div>
+                    <button id="btn-restart-sim" class="btn btn-small btn-secondary" title="Перезапустить чат">
+                        <i data-lucide="refresh-cw"></i>
+                        <span>Заново</span>
+                    </button>
+                </div>
+
+                <!-- Phone Container Mockup -->
+                <div class="phone-mockup">
+                    <div class="phone-bezel">
+                        <!-- Dynamic Island / Speaker notch -->
+                        <div class="phone-top-bar">
+                            <span class="phone-time">09:41</span>
+                            <div class="dynamic-island"></div>
+                            <div class="phone-status-icons">
+                                <i data-lucide="signal" class="phone-icon"></i>
+                                <i data-lucide="wifi" class="phone-icon"></i>
+                                <i data-lucide="battery" class="phone-icon"></i>
+                            </div>
+                        </div>
+
+                        <!-- Chat screen -->
+                        <div class="phone-screen">
+                            <!-- Chat Header -->
+                            <div class="chat-header">
+                                <div class="chat-avatar">
+                                    <i data-lucide="bot"></i>
+                                    <div class="avatar-status-dot online"></div>
+                                </div>
+                                <div class="chat-info">
+                                    <span class="chat-name">Ассистент</span>
+                                    <span class="chat-status">В сети</span>
+                                </div>
+                                <div class="chat-actions">
+                                    <i data-lucide="phone"></i>
+                                    <i data-lucide="video"></i>
+                                </div>
+                            </div>
+
+                            <!-- Chat Messages List -->
+                            <div class="chat-messages" id="chat-messages">
+                                <!-- Example bot message -->
+                                <div class="message-bubble bot-bubble">
+                                    <div class="message-text">Привет! Давайте протестируем этот сценарий. Запустите симулятор или выберите действие ниже.</div>
+                                    <div class="message-time">10:00</div>
+                                </div>
+                                <!-- Example system state -->
+                                <div class="chat-system-msg">Начало сценария</div>
+                            </div>
+
+                            <!-- Chat Simulator Action Area (Options or Inputs) -->
+                            <div class="chat-input-area" id="chat-input-area">
+                                <!-- Options will be rendered here dynamically -->
+                                <div class="chat-options-container" id="chat-options-container">
+                                    <button class="chat-option-btn">Опция 1</button>
+                                    <button class="chat-option-btn">Опция 2</button>
+                                </div>
+
+                                <!-- Text Input will be rendered here if user-input node is active -->
+                                <div class="chat-text-input-container" id="chat-text-input-container" style="display: none;">
+                                    <input type="text" id="sim-user-input" class="sim-text-input" placeholder="Введите ответ...">
+                                    <button id="btn-submit-input" class="sim-input-submit-btn">
+                                        <i data-lucide="send"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Simulation Info Panel -->
+                <div class="variables-panel">
+                    <div class="variables-header">
+                        <i data-lucide="database"></i>
+                        <span>Переменные диалога</span>
+                    </div>
+                    <div class="variables-list" id="variables-list">
+                        <div class="no-variables">Нет сохраненных переменных</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Script loading -->
+    <script src="app.js"></script>
+</body>
+</html>
