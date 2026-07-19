@@ -1067,102 +1067,143 @@ function loadDemoScript() {
         {
             id: 'node_demo_1',
             type: 'message',
-            text: 'Привет! 🤖 Я виртуальный помощник студии WebCraft. Помогаю рассчитать стоимость проекта или ответить на вопросы. Как я могу к вам обращаться?',
+            text: 'Привет! 🌌 Соединение установлено. Наш чат полностью анонимный, так что давай общаться искренне. Доверимся интуиции? Как тебя зовут?',
             x: 80,
-            y: 250,
+            y: 300,
             next: 'node_demo_2'
         },
         {
             id: 'node_demo_2',
             type: 'input',
-            text: 'Напишите, пожалуйста, ваше имя:',
+            text: 'Напишите ваше имя:',
             x: 420,
-            y: 250,
-            variable: 'clientName',
+            y: 300,
+            variable: 'userName',
             next: 'node_demo_3'
         },
         {
             id: 'node_demo_3',
             type: 'choice',
-            text: 'Приятно познакомиться, {clientName}! Какой проект вас интересует?',
+            text: 'Приятно познакомиться, {userName}! Я Алина. 🌊 Давай сыграем в интуицию. Угадай, откуда я родом?',
             x: 760,
-            y: 250,
+            y: 300,
             choices: [
-                { id: 'c_demo_web', text: 'Разработка сайта 🌐', next: 'node_demo_website' },
-                { id: 'c_demo_seo', text: 'Продвижение / SEO 📈', next: 'node_demo_seo' },
-                { id: 'c_demo_other', text: 'Другой вопрос 💬', next: 'node_demo_other' }
+                { id: 'c_spb', text: 'Из туманного Питера 🌧️', next: 'node_demo_spb' },
+                { id: 'c_sochi', text: 'Из солнечного Сочи ☀️', next: 'node_demo_sochi' },
+                { id: 'c_moscow', text: 'Из космической Москвы 🚀', next: 'node_demo_moscow' }
             ]
         },
         {
-            id: 'node_demo_website',
+            id: 'node_demo_spb',
             type: 'choice',
-            text: 'Сайт — это отличный выбор для развития бизнеса. Какого типа сайт вам нужен?',
+            text: 'Ого, прямо в точку! 🎯 У тебя потрясающая интуиция. Люблю питерские крыши и дождливые вечера с книгой. А попробуешь угадать моё хобби?',
             x: 1120,
             y: 50,
             choices: [
-                { id: 'c_web_landing', text: 'Лендинг (одностраничник) 📄', next: 'node_demo_landing' },
-                { id: 'c_web_shop', text: 'Интернет-магазин 🛍️', next: 'node_demo_shop' },
-                { id: 'c_web_back', text: 'Назад в меню ↩️', next: 'node_demo_3' }
+                { id: 'c_spb_art', text: 'Рисуешь картины акварелью 🎨', next: 'node_demo_art' },
+                { id: 'c_spb_music', text: 'Играешь рок на гитаре 🎸', next: 'node_demo_music' }
             ]
         },
         {
-            id: 'node_demo_landing',
-            type: 'message',
-            text: 'Разработка лендинга у нас занимает от 5 дней. Стоимость — от 25 000 руб. Включает адаптивный дизайн и базовую SEO-настройку.',
-            x: 1480,
-            y: -50,
-            next: 'node_demo_contact_prompt'
-        },
-        {
-            id: 'node_demo_shop',
-            type: 'message',
-            text: 'Интернет-магазин делаем от 15 дней. Стоимость — от 60 000 руб. Включает корзину, каталог, интеграцию платежей и CRM.',
-            x: 1480,
-            y: 150,
-            next: 'node_demo_contact_prompt'
-        },
-        {
-            id: 'node_demo_seo',
-            type: 'message',
-            text: 'SEO-оптимизация и контекстная реклама помогают быстро привлечь клиентов. Наш бюджет на маркетинг начинается от 15 000 руб/мес.',
+            id: 'node_demo_sochi',
+            type: 'choice',
+            text: 'Мимо! 🌴 Но я обожаю тепло. На самом деле я из Питера. Моя интуиция подсказывает, что ты любишь рисковать. Угадай, какое у меня хобби?',
             x: 1120,
-            y: 350,
-            next: 'node_demo_contact_prompt'
+            y: 300,
+            choices: [
+                { id: 'c_sochi_art', text: 'Рисуешь картины акварелью 🎨', next: 'node_demo_art' },
+                { id: 'c_sochi_music', text: 'Играешь рок на гитаре 🎸', next: 'node_demo_music' }
+            ]
         },
         {
-            id: 'node_demo_other',
-            type: 'message',
-            text: 'Хорошо. Расскажите подробнее о вашем запросе на следующем шаге, и наш менеджер свяжется с вами напрямую.',
+            id: 'node_demo_moscow',
+            type: 'choice',
+            text: 'Почти! 🏙️ Хотя в Москве бываю часто, я из Питера. Скажи, веришь в совпадения? Какое у меня хобби, как думаешь?',
             x: 1120,
             y: 550,
-            next: 'node_demo_contact_prompt'
-        },
-        {
-            id: 'node_demo_contact_prompt',
-            type: 'choice',
-            text: 'Хотите получить точную смету или проконсультироваться с живым специалистом?',
-            x: 1840,
-            y: 250,
             choices: [
-                { id: 'c_contact_yes', text: 'Оставить заявку 📞', next: 'node_demo_get_phone' },
-                { id: 'c_contact_no', text: 'Начать сначала 🔄', next: 'node_demo_1' }
+                { id: 'c_moscow_art', text: 'Рисуешь картины акварелью 🎨', next: 'node_demo_art' },
+                { id: 'c_moscow_music', text: 'Играешь рок на гитаре 🎸', next: 'node_demo_music' }
             ]
         },
         {
-            id: 'node_demo_get_phone',
-            type: 'input',
-            text: 'Пожалуйста, введите ваш номер телефона или Telegram для связи:',
+            id: 'node_demo_art',
+            type: 'message',
+            text: 'Да! Я пишу пейзажи. Акварель — это про эмоции, легкие мазки и прозрачность. Мне кажется, ты тоже творческий человек.',
+            x: 1480,
+            y: 100,
+            next: 'node_demo_chemistry'
+        },
+        {
+            id: 'node_demo_music',
+            type: 'message',
+            text: 'Ха-ха, нет, хотя рок обожаю! 🎸 На самом деле я пишу акварельные пейзажи. Но твоя версия мне тоже нравится!',
+            x: 1480,
+            y: 350,
+            next: 'node_demo_chemistry'
+        },
+        {
+            id: 'node_demo_chemistry',
+            type: 'choice',
+            text: 'Знаешь, мне очень легко общаться с тобой. Наша интуитивная связь определенно работает. Что сделаем дальше?',
+            x: 1840,
+            y: 300,
+            choices: [
+                { id: 'c_chem_deep', text: 'Задать глубокий вопрос 💫', next: 'node_demo_deep' },
+                { id: 'c_chem_contact', text: 'Обменяться контактами 📱', next: 'node_demo_get_contact' }
+            ]
+        },
+        {
+            id: 'node_demo_deep',
+            type: 'choice',
+            text: 'Опиши себя одним словом. Кто ты в этой жизни?',
             x: 2180,
-            y: 180,
-            variable: 'clientContact',
+            y: 480,
+            choices: [
+                { id: 'c_deep_seeker', text: 'Искатель 🧭', next: 'node_demo_seeker' },
+                { id: 'c_deep_creator', text: 'Создатель 🛠️', next: 'node_demo_creator' },
+                { id: 'c_deep_observer', text: 'Наблюдатель 👁️', next: 'node_demo_observer' }
+            ]
+        },
+        {
+            id: 'node_demo_seeker',
+            type: 'message',
+            text: 'Искателям всегда открываются новые дороги. Рада, что наши пути пересеклись в этом анонимном чате.',
+            x: 2520,
+            y: 350,
+            next: 'node_demo_get_contact'
+        },
+        {
+            id: 'node_demo_creator',
+            type: 'message',
+            text: 'Создавать — значит менять мир вокруг себя. Это прекрасное качество. Рада знакомству с тобой!',
+            x: 2520,
+            y: 500,
+            next: 'node_demo_get_contact'
+        },
+        {
+            id: 'node_demo_observer',
+            type: 'message',
+            text: 'Наблюдатели видят детали, которые другие упускают. Наверное, ты очень внимательный и глубокий человек.',
+            x: 2520,
+            y: 650,
+            next: 'node_demo_get_contact'
+        },
+        {
+            id: 'node_demo_get_contact',
+            type: 'input',
+            text: 'Давай перейдем в нормальный мессенджер? Напиши свой Telegram или телефон для связи:',
+            x: 2900,
+            y: 300,
+            variable: 'userContact',
             next: 'node_demo_final'
         },
         {
             id: 'node_demo_final',
             type: 'end',
-            text: 'Отлично, {clientName}! Ваша заявка успешно принята. Менеджер свяжется с вами по контакту: {clientContact}. Хорошего дня! ✨',
-            x: 2520,
-            y: 250
+            text: 'Супер, {userName}! Записала твой контакт: {userContact}. Скоро напишу тебе в Telegram. Было круто довериться интуиции сегодня! Пока! ✨',
+            x: 3240,
+            y: 300
         }
     ];
     
