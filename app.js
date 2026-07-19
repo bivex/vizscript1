@@ -1304,7 +1304,7 @@ function autoLayoutGraph() {
         }
     });
     
-    // 3. Determine layers (BFS)
+    // 3. Determine layers (BFS with cycle prevention)
     const layers = {}; // nodeId -> layer index
     const queue = [{ id: startNode.id, layer: 0 }];
     const visited = new Set();
@@ -1314,19 +1314,16 @@ function autoLayoutGraph() {
         const nodeId = current.id;
         const layer = current.layer;
         
-        if (layers[nodeId] === undefined || layer > layers[nodeId]) {
-            layers[nodeId] = layer;
-        }
+        if (visited.has(nodeId)) continue;
+        visited.add(nodeId);
         
-        const visitKey = `${nodeId}-${layer}`;
-        if (visited.has(visitKey)) continue;
-        visited.add(visitKey);
-        
-        if (layer > 50) continue; // safety depth limit
+        layers[nodeId] = layer;
         
         const children = adj[nodeId] || [];
         children.forEach(childId => {
-            queue.push({ id: childId, layer: layer + 1 });
+            if (!visited.has(childId)) {
+                queue.push({ id: childId, layer: layer + 1 });
+            }
         });
     }
     
@@ -1421,6 +1418,11 @@ function animateNodesToTargets(targets) {
         } else {
             // Re-align and center view on the start node after layout finishes
             resetZoomAndPan();
+            
+            // Force redraw after browser layout settles to ensure perfect alignment
+            setTimeout(() => {
+                drawConnections();
+            }, 60);
         }
     }
     
