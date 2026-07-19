@@ -297,7 +297,11 @@ function bindNodeEvents(node, nodeEl) {
     
     // Textarea editing
     const textarea = nodeEl.querySelector('.node-textarea');
-    autoResizeTextarea(textarea);
+    // Defer initial resize to let browser compute DOM layout first
+    setTimeout(() => {
+        autoResizeTextarea(textarea);
+        drawConnections();
+    }, 50);
     textarea.addEventListener('input', (e) => {
         node.text = e.target.value;
         autoResizeTextarea(e.target);
@@ -1143,5 +1147,6 @@ function loadDemoScript() {
 function autoResizeTextarea(textarea) {
     if (!textarea) return;
     textarea.style.height = 'auto';
-    textarea.style.height = `${textarea.scrollHeight}px`;
+    const borderHeight = textarea.offsetHeight - textarea.clientHeight;
+    textarea.style.height = `${textarea.scrollHeight + borderHeight}px`;
 }
