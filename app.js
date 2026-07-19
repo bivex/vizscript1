@@ -1067,65 +1067,102 @@ function loadDemoScript() {
         {
             id: 'node_demo_1',
             type: 'message',
-            text: 'Привет! 🤖 Добро пожаловать в VizScript Studio — визуальный конструктор сценариев диалогов.',
+            text: 'Привет! 🤖 Я виртуальный помощник студии WebCraft. Помогаю рассчитать стоимость проекта или ответить на вопросы. Как я могу к вам обращаться?',
             x: 80,
-            y: 180,
+            y: 250,
             next: 'node_demo_2'
         },
         {
             id: 'node_demo_2',
             type: 'input',
-            text: 'Давайте познакомимся. Как вас зовут?',
+            text: 'Напишите, пожалуйста, ваше имя:',
             x: 420,
-            y: 180,
-            variable: 'userName',
+            y: 250,
+            variable: 'clientName',
             next: 'node_demo_3'
         },
         {
             id: 'node_demo_3',
             type: 'choice',
-            text: 'Приятно познакомиться, {userName}! Проверим возможности редактора? Какая тема вас интересует?',
+            text: 'Приятно познакомиться, {clientName}! Какой проект вас интересует?',
             x: 760,
-            y: 180,
+            y: 250,
             choices: [
-                { id: 'c_demo_1', text: 'Узнать про тарифы 💳', next: 'node_demo_4' },
-                { id: 'c_demo_2', text: 'Условия техподдержки ⚙️', next: 'node_demo_5' },
-                { id: 'c_demo_3', text: 'Завершить тест 🚪', next: 'node_demo_6' }
+                { id: 'c_demo_web', text: 'Разработка сайта 🌐', next: 'node_demo_website' },
+                { id: 'c_demo_seo', text: 'Продвижение / SEO 📈', next: 'node_demo_seo' },
+                { id: 'c_demo_other', text: 'Другой вопрос 💬', next: 'node_demo_other' }
             ]
         },
         {
-            id: 'node_demo_4',
+            id: 'node_demo_website',
             type: 'choice',
-            text: 'У нас есть три тарифа: Базовый (бесплатно), Про ($19/мес) и Бизнес ($49/мес). О каком рассказать?',
-            x: 1140,
-            y: -20,
+            text: 'Сайт — это отличный выбор для развития бизнеса. Какого типа сайт вам нужен?',
+            x: 1120,
+            y: 50,
             choices: [
-                { id: 'c_t_1', text: 'Подробнее о Про 🚀', next: 'node_demo_pro' },
-                { id: 'c_t_2', text: 'Назад в меню ↩️', next: 'node_demo_3' }
+                { id: 'c_web_landing', text: 'Лендинг (одностраничник) 📄', next: 'node_demo_landing' },
+                { id: 'c_web_shop', text: 'Интернет-магазин 🛍️', next: 'node_demo_shop' },
+                { id: 'c_web_back', text: 'Назад в меню ↩️', next: 'node_demo_3' }
             ]
         },
         {
-            id: 'node_demo_pro',
+            id: 'node_demo_landing',
             type: 'message',
-            text: 'Тариф Про открывает неограниченное число сценариев, встроенную аналитику и приоритетную поддержку 24/7.',
-            x: 1500,
-            y: -80,
-            next: 'node_demo_4'
+            text: 'Разработка лендинга у нас занимает от 5 дней. Стоимость — от 25 000 руб. Включает адаптивный дизайн и базовую SEO-настройку.',
+            x: 1480,
+            y: -50,
+            next: 'node_demo_contact_prompt'
         },
         {
-            id: 'node_demo_5',
+            id: 'node_demo_shop',
             type: 'message',
-            text: 'Поддержка отвечает по почте support@example.com или в Telegram в течение 15 минут в рабочее время.',
-            x: 1140,
+            text: 'Интернет-магазин делаем от 15 дней. Стоимость — от 60 000 руб. Включает корзину, каталог, интеграцию платежей и CRM.',
+            x: 1480,
+            y: 150,
+            next: 'node_demo_contact_prompt'
+        },
+        {
+            id: 'node_demo_seo',
+            type: 'message',
+            text: 'SEO-оптимизация и контекстная реклама помогают быстро привлечь клиентов. Наш бюджет на маркетинг начинается от 15 000 руб/мес.',
+            x: 1120,
             y: 350,
-            next: 'node_demo_6'
+            next: 'node_demo_contact_prompt'
         },
         {
-            id: 'node_demo_6',
+            id: 'node_demo_other',
+            type: 'message',
+            text: 'Хорошо. Расскажите подробнее о вашем запросе на следующем шаге, и наш менеджер свяжется с вами напрямую.',
+            x: 1120,
+            y: 550,
+            next: 'node_demo_contact_prompt'
+        },
+        {
+            id: 'node_demo_contact_prompt',
+            type: 'choice',
+            text: 'Хотите получить точную смету или проконсультироваться с живым специалистом?',
+            x: 1840,
+            y: 250,
+            choices: [
+                { id: 'c_contact_yes', text: 'Оставить заявку 📞', next: 'node_demo_get_phone' },
+                { id: 'c_contact_no', text: 'Начать сначала 🔄', next: 'node_demo_1' }
+            ]
+        },
+        {
+            id: 'node_demo_get_phone',
+            type: 'input',
+            text: 'Пожалуйста, введите ваш номер телефона или Telegram для связи:',
+            x: 2180,
+            y: 180,
+            variable: 'clientContact',
+            next: 'node_demo_final'
+        },
+        {
+            id: 'node_demo_final',
             type: 'end',
-            text: 'Отлично, тест завершен! Теперь вы можете добавить свои шаги, перетянуть связи или экспортировать этот JSON. Удачной работы! ✨',
-            x: 1500,
-            y: 280
+            text: 'Отлично, {clientName}! Ваша заявка успешно принята. Менеджер свяжется с вами по контакту: {clientContact}. Хорошего дня! ✨',
+            x: 2520,
+            y: 250
         }
     ];
     
