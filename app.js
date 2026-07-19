@@ -920,32 +920,24 @@ function renderChoicesInSimulator(node) {
         return;
     }
     
-    node.choices.forEach(choice => {
-        const btn = document.createElement('button');
-        btn.className = 'chat-option-btn';
-        btn.innerText = choice.text;
-        btn.addEventListener('click', () => {
-            appendChatBubble('user', choice.text);
-            
-            if (choice.next) {
-                state.activeConnections.push({ sourceId: node.id, choiceId: choice.id, targetId: choice.next });
-                drawConnections();
-                
-                state.activeSimNodeId = choice.next;
-                runSimulatorStep();
-            } else {
-                appendSystemMessage('Выбранный вариант никуда не ведет.');
-                chatOptionsContainer.innerHTML = '';
-            }
-        });
-        chatOptionsContainer.appendChild(btn);
-    });
+    // Show text input instead of buttons
+    chatTextInputContainer.style.display = 'flex';
+    simUserInput.value = '';
+    
+    // Strip emojis to make a clean placeholder prompt
+    const hints = node.choices.map(c => {
+        return c.text.replace(/[\uD800-\uDFFF\u2600-\u27BF]/g, '').replace(/[^\wа-яА-ЯёЁ\s]/g, '').trim();
+    }).join(' / ');
+    
+    simUserInput.placeholder = `Напишите: ${hints}...`;
+    simUserInput.focus();
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
 function renderInputInSimulator(node) {
     chatTextInputContainer.style.display = 'flex';
     simUserInput.value = '';
+    simUserInput.placeholder = 'Введите ответ...';
     simUserInput.focus();
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -955,26 +947,93 @@ function submitUserInput() {
     if (!val) return;
     
     const node = state.nodes.find(n => n.id === state.activeSimNodeId);
-    if (!node || node.type !== 'input') return;
+    if (!node) return;
     
-    // Save variable
-    const varName = node.variable || 'temp_var';
-    state.simVariables[varName] = val;
-    updateVariablesUI();
-    
-    appendChatBubble('user', val);
-    
-    chatTextInputContainer.style.display = 'none';
-    
-    if (node.next) {
-        state.activeConnections.push({ sourceId: node.id, choiceId: null, targetId: node.next });
-        drawConnections();
+    if (node.type === 'input') {
+        // Save variable
+        const varName = node.variable || 'temp_var';
+        state.simVariables[varName] = val;
+        updateVariablesUI();
         
-        state.activeSimNodeId = node.next;
-        runSimulatorStep();
-    } else {
-        appendSystemMessage('Ввод сохранен. Нет следующего узла.');
+        appendChatBubble('user', val);
+        chatTextInputContainer.style.display = 'none';
+        
+        if (node.next) {
+            state.activeConnections.push({ sourceId: node.id, choiceId: null, targetId: node.next });
+            drawConnections();
+            
+            state.activeSimNodeId = node.next;
+            runSimulatorStep();
+        } else {
+            appendSystemMessage('Ввод сохранен. Нет следующего узла.');
+        }
+    } else if (node.type === 'choice') {
+        appendChatBubble('user', val);
+        chatTextInputContainer.style.display = 'none';
+        
+        const matchedChoice = findMatchingChoice(val, node.choices);
+        
+        if (matchedChoice) {
+            if (matchedChoice.next) {
+                state.activeConnections.push({ sourceId: node.id, choiceId: matchedChoice.id, targetId: matchedChoice.next });
+                drawConnections();
+                
+                state.activeSimNodeId = matchedChoice.next;
+                runSimulatorStep();
+            } else {
+                appendSystemMessage('Выбранный вариант никуда не ведет.');
+            }
+        } else {
+            // Fallback: choose the first choice by default if no keyword match
+            const defaultChoice = node.choices[0];
+            if (defaultChoice && defaultChoice.next) {
+                appendSystemMessage(`[Интуиция]: выбран вариант "${defaultChoice.text.replace(/[\uD800-\uDFFF\u2600-\u27BF]/g, '').trim()}"`);
+                state.activeConnections.push({ sourceId: node.id, choiceId: defaultChoice.id, targetId: defaultChoice.next });
+                drawConnections();
+                
+                state.activeSimNodeId = defaultChoice.next;
+                runSimulatorStep();
+            } else {
+                appendSystemMessage('Не удалось определить ответ.');
+            }
+        }
     }
+}
+
+function findMatchingChoice(val, choices) {
+    const input = val.toLowerCase().trim();
+    
+    // 1. Exact or substring match in choice texts (ignoring emojis)
+    for (let choice of choices) {
+        const cleanChoice = choice.text.toLowerCase().replace(/[\uD800-\uDFFF\u2600-\u27BF]/g, '').trim();
+        if (input.includes(cleanChoice) || cleanChoice.includes(input)) {
+            return choice;
+        }
+    }
+    
+    // 2. Keyword match (check if any word >= 3 chars from input is contained in choice text)
+    const words = input.split(/[^\wа-яА-ЯёЁ]+/).filter(w => w.length >= 3);
+    for (let word of words) {
+        for (let choice of choices) {
+            const cleanChoice = choice.text.toLowerCase();
+            if (cleanChoice.includes(word)) {
+                return choice;
+            }
+        }
+    }
+    
+    // 3. Root match (compare first 3-4 chars of choice words against input)
+    for (let choice of choices) {
+        const choiceWords = choice.text.toLowerCase().split(/[^\wа-яА-ЯёЁ]+/).filter(w => w.length >= 3);
+        for (let cw of choiceWords) {
+            const root = cw.substring(0, 3);
+            if (input.includes(root)) {
+                return choice;
+            }
+        }
+    }
+    
+    return null;
 }
 
 function updateVariablesUI() {
