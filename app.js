@@ -171,20 +171,20 @@ function renderNodeDOM(node) {
     
     if (!isStart) {
         headerActionsHtml += `
-            <button class="node-header-btn btn-set-start" title="Сделать стартовым">
+            <button class="node-header-btn btn-set-start" title="Сделать стартовым" aria-label="Сделать стартовым">
                 <i data-lucide="play"></i>
             </button>
         `;
     }
     
     headerActionsHtml += `
-        <button class="node-header-btn danger btn-delete-node" title="Удалить">
+        <button class="node-header-btn danger btn-delete-node" title="Удалить" aria-label="Удалить узел">
             <i data-lucide="trash-2"></i>
         </button>
     `;
     
     let bodyHtml = `
-        <textarea class="node-textarea" placeholder="Текст сообщения...">${node.text}</textarea>
+        <textarea class="node-textarea" placeholder="Текст сообщения..." aria-label="Текст сообщения">${node.text}</textarea>
     `;
     
     if (node.type === 'choice') {
@@ -192,8 +192,8 @@ function renderNodeDOM(node) {
         node.choices.forEach(choice => {
             bodyHtml += `
                 <div class="choice-item">
-                    <input type="text" class="choice-input" data-choice-id="${choice.id}" value="${choice.text}">
-                    <button class="btn-delete-choice" data-choice-id="${choice.id}">×</button>
+                    <input type="text" class="choice-input" data-choice-id="${choice.id}" value="${choice.text}" aria-label="Вариант ответа">
+                    <button class="btn-delete-choice" data-choice-id="${choice.id}" aria-label="Удалить вариант ответа">×</button>
                     <div class="node-port output-port choice-item-port" data-node-id="${node.id}" data-choice-id="${choice.id}"></div>
                 </div>
             `;
@@ -208,7 +208,7 @@ function renderNodeDOM(node) {
         bodyHtml += `
             <div class="input-variable-container">
                 <span class="input-label">Записать ответ в переменную:</span>
-                <input type="text" class="variable-name-input" value="${node.variable}" placeholder="userName">
+                <input type="text" class="variable-name-input" value="${node.variable}" placeholder="userName" aria-label="Имя переменной">
             </div>
         `;
     }

@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VizScript Studio — Визуальный конструктор сценариев диалога</title>
+    <meta name="description" content="VizScript Studio — интерактивный визуальный конструктор сценариев диалогов с симулятором чата в реальном времени. Проектируйте диалоговые деревья и тестируйте их сразу в окне симулятора.">
     <!-- Google Fonts: Inter & Fira Code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@0.415.0/dist/umd/lucide.min.js" defer></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -71,16 +72,16 @@
                     </div>
                     <div class="toolbar-spacer"></div>
                     <div class="toolbar-group">
-                        <button id="btn-zoom-in" class="btn-tool-icon" title="Приблизить">
+                        <button id="btn-zoom-in" class="btn-tool-icon" title="Приблизить" aria-label="Приблизить масштаб">
                             <i data-lucide="zoom-in"></i>
                         </button>
-                        <button id="btn-zoom-out" class="btn-tool-icon" title="Отдалить">
+                        <button id="btn-zoom-out" class="btn-tool-icon" title="Отдалить" aria-label="Отдалить масштаб">
                             <i data-lucide="zoom-out"></i>
                         </button>
-                        <button id="btn-zoom-reset" class="btn-tool-icon" title="Сбросить масштаб">
+                        <button id="btn-zoom-reset" class="btn-tool-icon" title="Сбросить масштаб" aria-label="Сбросить масштаб и центрировать">
                             <i data-lucide="maximize-2"></i>
                         </button>
-                        <button id="btn-clear-canvas" class="btn-tool-icon danger" title="Очистить всё">
+                        <button id="btn-clear-canvas" class="btn-tool-icon danger" title="Очистить всё" aria-label="Очистить холст">
                             <i data-lucide="trash-2"></i>
                         </button>
                     </div>
@@ -190,8 +191,8 @@
 
                                 <!-- Text Input will be rendered here if user-input node is active -->
                                 <div class="chat-text-input-container" id="chat-text-input-container" style="display: none;">
-                                    <input type="text" id="sim-user-input" class="sim-text-input" placeholder="Введите ответ...">
-                                    <button id="btn-submit-input" class="sim-input-submit-btn">
+                                    <input type="text" id="sim-user-input" class="sim-text-input" placeholder="Введите ответ..." aria-label="Текст сообщения">
+                                    <button id="btn-submit-input" class="sim-input-submit-btn" aria-label="Отправить ответ">
                                         <i data-lucide="send"></i>
                                     </button>
                                 </div>
@@ -215,6 +216,6 @@
     </div>
 
     <!-- Script loading -->
-    <script src="app.js"></script>
+    <script src="app.js" defer></script>
 </body>
 </html>
